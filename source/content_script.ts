@@ -1,10 +1,11 @@
 import browserAPI from "browser";
+let imageDataUrl: string;
 
 browserAPI.runtime.onMessage.addListener((message) => {
   console.log("helllo again");
-  console.log(message.type);
-
   startCaptureEvent();
+  imageDataUrl = message.imageDataUrl;
+  console.log(imageDataUrl);
   return Promise.resolve({ response: "recieved from content script" });
 });
 
@@ -20,9 +21,9 @@ function startCaptureEvent() {
   }
 }
 
-function exitCaptureEvent(e: KeyboardEvent) {
+function exitCaptureEvent(e?: KeyboardEvent) {
   console.log(e);
-  if (e.key === "Escape") {
+  if (!e || e.key === "Escape") {
     const canvas = document.querySelector("#gemini-helper");
     if (canvas) {
       canvas.remove();
@@ -113,32 +114,49 @@ function trackSnip(e: MouseEvent) {
 }
 
 // considered using a closure function here so i can keep state.... check later
+// async function captureScreenContent() {
+//   const [tab] = await browserAPI.tabs.query({
+//     active: true,
+//     currentWindow: true,
+//   });
+//   const imageDataUrl = await browserAPI.tabs.captureVisibleTab(tab.windowId, {
+//     format: "png",
+//   });
+//   return imageDataUrl;
+// }
+
 function endSnip(e: MouseEvent) {
-  // Stop snipping and remove the event listeners or do it here.
   document.removeEventListener("mousemove", trackSnip);
   document.removeEventListener("mouseup", endSnip);
-  const overlayCanvas = document.querySelector(
-    "#gemini-helper",
-  ) as HTMLCanvasElement;
-  if (!overlayCanvas) return;
-  const ctx = overlayCanvas.getContext("2d");
-  if (!ctx) return;
-  const width = e.clientX - startX;
-  const height = e.clientY - startY;
-  const snipCanvas = document.createElement("canvas");
-  snipCanvas.width = width;
-  snipCanvas.height = height;
-  const snipCtx = snipCanvas.getContext("2d");
-  if (!snipCtx) return;
-  const imageData = ctx.getImageData(startX, startY, width, height);
-  snipCtx.putImageData(imageData, 0, 0);
-  const dataURL = snipCanvas.toDataURL("image/png");
-  console.log("Snipped image data URL:", dataURL);
-  // send this to background script
-  const imgElement = document.createElement("img");
-  imgElement.src = dataURL;
-  document.body.appendChild(imgElement);
-  isSnipping = false;
-  // still need to reset the whole thing.
-  // so canvas clean up? maybe deleting the whole thing entirely
+
+  const img = new Image();
+  img.src = imageDataUrl;
+  img.onload = () => {
+    const overlayCanvas = document.querySelector(
+      "#gemini-helper",
+    ) as HTMLCanvasElement;
+    if (!overlayCanvas) return;
+    const width = e.clientX - startX;
+    const height = e.clientY - startY;
+    const snipCanvas = document.createElement("canvas");
+    snipCanvas.width = width;
+    snipCanvas.height = height;
+    const snipCtx = snipCanvas.getContext("2d");
+    if (!snipCtx) return;
+    snipCtx.drawImage(
+      img,
+      startX,
+      startY,
+      width,
+      height,
+      0,
+      0,
+      width,
+      height,
+    );
+    const snipDataURL = snipCanvas.toDataURL("image/png");
+    console.log("Snipped image data URL:", snipDataURL);
+    isSnipping = false;
+    exitCaptureEvent();
+  };
 }

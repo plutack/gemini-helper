@@ -12,23 +12,36 @@ export default function CaptureButton() {
       ([tab]) => {
         if (tab !== undefined) {
           console.log(tab.id);
-          // chrome and mozilla seems to handle this differently which is quite
-          // disorienting, one returns promise, the other undefined since it uses
-          // a callback to process the response recieved. mozilla is priority for now
-          const response: Promise<Response> = browserAPI.tabs.sendMessage(
-            tab.id!,
-            {
-              type: "capture",
-            },
-          ) as unknown as Promise<Response>;
-          response.then((response) => {
-            console.log(response.response);
+
+          // chrome and mozilla handles this diffeernetly , one returns a callback one promise.
+          // perhaps forced casting, cos now I need to fight typescript and deno browserApi function
+          const imageDataUrlPromise = new Promise<string>((resolve, reject) => {
+            const result = browserAPI.tabs.captureVisibleTab(tab.windowId, {
+              format: "png",
+            });
+            if (result && typeof result.then === "function") {
+              result.then(resolve, reject);
+            } else {
+              browserAPI.tabs.captureVisibleTab(
+                tab.windowId,
+                { format: "png" },
+                // resolve, // maybe this works for chrome. will test later
+              );
+            }
           });
+
+          imageDataUrlPromise.then((url) => {
+            const response = browserAPI.tabs.sendMessage(tab.id!, {
+              type: "capture",
+              imageDataUrl: url,
+            }) as unknown as Promise<Response>;
+            response.then((response) => console.log(response.response));
+          }).catch(console.error);
         } else {
           console.log("no tabs");
         }
       },
-    ).catch(onerror);
+    ).catch(console.error);
   }, []);
 
   return (
