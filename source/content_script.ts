@@ -1,47 +1,60 @@
-/**
- * BigDaddy script: https://github.com/ivebencrazy/BigDaddy
- * Replaces all instances of the word "data" with "daddy".
- */
+import browserAPI from "browser";
 
-/// <reference lib="dom" />
+browserAPI.runtime.onMessage.addListener((message) => {
+  console.log("helllo again");
+  console.log(message.type);
 
-window.alert("Running Sample Browser Extension");
+  startCaptureEvent();
+  return Promise.resolve({ response: "recieved from content script" });
+});
 
-Array.prototype.forEach.call(
-  document.getElementsByTagName("*"),
-  replaceNode,
-);
-
-function replaceNode(element: Element) {
-  const stack: Node[] = [element];
-  const textNodes: Node[] = [];
-  let el = stack.pop();
-  while (el) {
-    Array.prototype.forEach.call(el.childNodes, (n: Node) => {
-      const { nodeName, nodeType } = n;
-
-      const parentNodeName = n?.parentNode?.nodeName;
-
-      if (
-        nodeName === "INPUT" || nodeName === "TEXTAREA" ||
-        parentNodeName === "INPUT" || parentNodeName == "TEXTAREA"
-      ) return;
-      else if (nodeType === 1) stack.push(n); // is element node
-      else if (nodeType === 3) textNodes.push(n); // is text node
-    });
-    el = stack.pop();
+let isCapturing = false;
+// a canvas overlay on the whole screen to be triggered by a  mousedown event
+function startCaptureEvent() {
+  if (!isCapturing) {
+    isCapturing = true;
+    createOverlay();
+    document.addEventListener("mousedown", startSnip);
+    globalThis.addEventListener("keydown", exitCaptureEvent);
   }
+}
 
-  textNodes.forEach((textNode: Node) => {
-    if (textNode?.parentNode && textNode?.nodeValue) {
-      textNode.parentNode.replaceChild(
-        document.createTextNode(
-          textNode.nodeValue
-            .replace(/data/g, "daddy")
-            .replace(/Data/g, "Daddy"),
-        ),
-        textNode,
-      );
+function exitCaptureEvent(e: KeyboardEvent) {
+  console.log(e);
+  if (e.key === "Escape") {
+    const canvas = document.querySelector("#gemini-helper");
+    if (canvas) {
+      canvas.remove();
     }
-  });
+    document.removeEventListener("mousedown", startSnip);
+    globalThis.removeEventListener("keydown", exitCaptureEvent);
+    isCapturing = false;
+  }
+}
+
+function createOverlay() {
+  const overlayCanvas = document.createElement("canvas");
+  overlayCanvas.id = "gemini-helper";
+  overlayCanvas.style.position = "fixed";
+  overlayCanvas.style.color = "blue";
+  overlayCanvas.style.zIndex = "10000";
+  overlayCanvas.style.left = "0";
+  overlayCanvas.style.top = "0";
+  overlayCanvas.width = globalThis.innerWidth;
+  overlayCanvas.height = globalThis.innerHeight;
+
+  document.body.appendChild(overlayCanvas);
+  const ctx = overlayCanvas.getContext("2d");
+  if (ctx) {
+    ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+    ctx.fillRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+    globalThis.addEventListener("onresize", (_event: Event) => {
+      overlayCanvas.width = globalThis.innerWidth;
+      overlayCanvas.height = globalThis.innerHeight;
+      ctx.fillRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+    });
+  }
+}
+
+function startSnip(e: Event) {
 }

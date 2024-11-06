@@ -24,11 +24,11 @@
     "browser_style": false
   },
   "permissions": [
-    "storage"
+    "storage",
+    "tabs",
+    "activeTab"
   ],
-  "optional_permissions": [
-    "tabs"
-  ],
+  "optional_permissions": [],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
