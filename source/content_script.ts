@@ -16,6 +16,7 @@ function startCaptureEvent() {
     createOverlay();
     document.addEventListener("mousedown", startSnip);
     globalThis.addEventListener("keydown", exitCaptureEvent);
+    globalThis.addEventListener("resize", resizeCanvas);
   }
 }
 
@@ -28,6 +29,7 @@ function exitCaptureEvent(e: KeyboardEvent) {
     }
     document.removeEventListener("mousedown", startSnip);
     globalThis.removeEventListener("keydown", exitCaptureEvent);
+    globalThis.removeEventListener("resize", resizeCanvas);
     isCapturing = false;
   }
 }
@@ -48,13 +50,23 @@ function createOverlay() {
   if (ctx) {
     ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
     ctx.fillRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-    globalThis.addEventListener("onresize", (_event: Event) => {
-      overlayCanvas.width = globalThis.innerWidth;
-      overlayCanvas.height = globalThis.innerHeight;
-      ctx.fillRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-    });
   }
 }
 
+function resizeCanvas(_e: Event) {
+  const canvas = document.querySelector("#gemini-helper") as
+    | HTMLCanvasElement
+    | null;
+  if (canvas) {
+    canvas.width = globalThis.innerWidth;
+    canvas.height = globalThis.innerHeight;
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+  console.log(`width ${canvas?.width} height ${canvas?.height}`);
+}
 function startSnip(e: Event) {
 }
