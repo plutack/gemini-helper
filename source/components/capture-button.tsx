@@ -32,6 +32,7 @@ export default function CaptureButton() {
 
           imageDataUrlPromise.then((url) => {
             const response = browserAPI.tabs.sendMessage(tab.id!, {
+              tabID: tab.id,
               type: "capture",
               imageDataUrl: url,
             }) as unknown as Promise<Response>;

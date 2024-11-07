@@ -3,10 +3,10 @@
     "browser": "https://deno.land/x/bext@v0.1.2/mod.ts",
     "preact": "https://esm.sh/preact?dev",
     "preact/hooks": "https://esm.sh/preact/hooks?dev",
-
     "deno-dom": "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts",
     "std/asserts": "https://deno.land/std@0.208.0/testing/asserts.ts",
     "std/mock": "https://deno.land/std@0.208.0/testing/mock.ts",
-    "@testing-library/preact": "https://esm.sh/@testing-library/preact/pure?dev"
+    "@testing-library/preact": "https://esm.sh/@testing-library/preact/pure?dev",
+    "@google/generative-ai": "https://esm.sh/@google/generative-ai@latest"
   }
 }

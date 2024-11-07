@@ -1,11 +1,19 @@
 import browserAPI from "browser";
 let imageDataUrl: string;
+let tabID: number;
+
+type Data = {
+  response: string;
+};
 
 browserAPI.runtime.onMessage.addListener((message) => {
-  console.log("helllo again");
-  startCaptureEvent();
-  imageDataUrl = message.imageDataUrl;
-  console.log(imageDataUrl);
+  if (message.type === "capture") {
+    console.log("helllo again");
+    startCaptureEvent();
+    imageDataUrl = message.imageDataUrl;
+    tabID = message.tabID;
+    console.log(imageDataUrl);
+  }
   return Promise.resolve({ response: "recieved from content script" });
 });
 
@@ -154,9 +162,21 @@ function endSnip(e: MouseEvent) {
       width,
       height,
     );
-    const snipDataURL = snipCanvas.toDataURL("image/png");
-    console.log("Snipped image data URL:", snipDataURL);
+    const snipDataUrl = snipCanvas.toDataURL();
     isSnipping = false;
+    browserAPI.runtime.sendMessage(
+      {
+        type: "processImage",
+        snipDataUrl,
+        tabID,
+      },
+      {},
+      (response: Data) => {
+        console.log("ddddddd", response.response);
+      },
+    );
+    console.log("Snipped image data URL:", snipDataUrl);
+    console.log("sup");
     exitCaptureEvent();
   };
 }
