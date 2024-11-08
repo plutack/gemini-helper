@@ -1,13 +1,12 @@
 import browserAPI from "browser";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-
+import { getStorageKey } from "./utilities/storage_helpers.ts";
+let key: string;
 let base64string: string;
 // let tabID: number; // i might not need this if i am able to send a response and recieve it properly
-const key = ""; // api key goes here
+// const prompt = browserAPI.storage.sync.get("prompt");
 const prompt =
   "You are a 'know-it-all'guru. Analyse the image and give proper context on it as you deem fit"; // change the prompt to something much more precise. // Prompt should be settable by user too.
-const genAI = new GoogleGenerativeAI(key);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 browserAPI.runtime.onMessage.addListener(async (message) => {
   console.log("request from content script");
@@ -31,14 +30,16 @@ async function processWithGemini(
   base64string: string,
 ): Promise<string> {
   // get gemini api from storage // will be in storage for sure. To be set in option page
+  key = await getStorageKey("key");
+  console.log("key", key);
+  const genAI = new GoogleGenerativeAI(key);
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   const image = {
     inlineData: {
       data: stripString(base64string),
       mimeType: "image/png",
     },
   };
-  console.log("prompt", prompt);
-  console.log(image, image);
   const result = await model.generateContent([prompt, image]);
   console.log("result", result);
   return result.response.text();
