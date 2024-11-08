@@ -47,7 +47,6 @@ function createOverlay() {
   const overlayCanvas = document.createElement("canvas");
   overlayCanvas.id = "gemini-helper";
   overlayCanvas.style.position = "fixed";
-  overlayCanvas.style.color = "blue";
   overlayCanvas.style.zIndex = "10000";
   overlayCanvas.style.left = "0";
   overlayCanvas.style.top = "0";
@@ -172,11 +171,93 @@ function endSnip(e: MouseEvent) {
       },
       {},
       (response: Data) => {
-        console.log("ddddddd", response.response);
+        console.log("Response received:", response.response);
+
+        const overlayResponse = document.createElement("div");
+        const bodyColor = document.body.style.backgroundColor;
+        const textColor = document.body.style.color;
+        overlayResponse.style.position = "fixed";
+        overlayResponse.style.color = textColor;
+        overlayResponse.style.bottom = "10px";
+        overlayResponse.style.right = "10px";
+        overlayResponse.style.maxWidth = "66vw";
+        overlayResponse.style.maxHeight = "66vh";
+        overlayResponse.style.overflow = "hidden";
+        overlayResponse.style.backgroundColor = bodyColor;
+        overlayResponse.style.border = "1px solid #ccc";
+        overlayResponse.style.borderRadius = "10px";
+        overlayResponse.style.boxShadow = "0 4px 10px rgba(0, 0, 0, 0.3)";
+        overlayResponse.style.zIndex = "1000";
+        overlayResponse.style.padding = "15px";
+        overlayResponse.style.fontFamily = "Arial, sans-serif";
+
+        // next page if needed?
+        const textContent = response.response;
+        const pageSize = 900;
+        let currentPage = 0;
+        const totalPages = Math.ceil(textContent.length / pageSize);
+
+        function updatePage() {
+          textContainer.innerText = textContent.slice(
+            currentPage * pageSize,
+            (currentPage + 1) * pageSize,
+          );
+          pageIndicator.innerText = `Page ${currentPage + 1} of ${totalPages}`;
+          prevButton.disabled = currentPage === 0;
+          nextButton.disabled = currentPage === totalPages - 1;
+        }
+
+        // Content container for scrollable text
+        const textContainer = document.createElement("div");
+        textContainer.style.overflowY = "auto";
+        textContainer.style.maxHeight = "calc(66vh - 80px)"; // need to adjust fot the buttons
+        overlayResponse.appendChild(textContainer);
+
+        const controlsContainer = document.createElement("div");
+        controlsContainer.style.display = "flex";
+        controlsContainer.style.justifyContent = "space-between";
+        controlsContainer.style.marginTop = "10px";
+
+        const prevButton = document.createElement("button");
+        prevButton.textContent = "Previous";
+        prevButton.onclick = () => {
+          if (currentPage > 0) {
+            currentPage--;
+            updatePage();
+          }
+        };
+
+        const nextButton = document.createElement("button");
+        nextButton.textContent = "Next";
+        nextButton.onclick = () => {
+          if (currentPage < totalPages - 1) {
+            currentPage++;
+            updatePage();
+          }
+        };
+
+        const pageIndicator = document.createElement("span");
+        pageIndicator.style.alignSelf = "center";
+
+        controlsContainer.appendChild(prevButton);
+        controlsContainer.appendChild(pageIndicator);
+        controlsContainer.appendChild(nextButton);
+
+        // Close button
+        const closeButton = document.createElement("button");
+        closeButton.textContent = "Close";
+        closeButton.style.position = "absolute";
+        closeButton.style.top = "5px";
+        closeButton.style.right = "5px";
+        closeButton.onclick = () => overlayResponse.remove();
+
+        // finalize overlay response structure // add margin perhaps?
+        overlayResponse.appendChild(closeButton);
+        overlayResponse.appendChild(controlsContainer);
+        document.body.appendChild(overlayResponse);
+        updatePage();
       },
     );
-    console.log("Snipped image data URL:", snipDataUrl);
-    console.log("sup");
     exitCaptureEvent();
   };
 }

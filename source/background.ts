@@ -6,7 +6,7 @@ let base64string: string;
 // let tabID: number; // i might not need this if i am able to send a response and recieve it properly
 // const prompt = browserAPI.storage.sync.get("prompt");
 const prompt =
-  "You are a 'know-it-all'guru. Analyse the image and give proper context on it as you deem fit"; // change the prompt to something much more precise. // Prompt should be settable by user too.
+  "You are a 'know-it-all'guru. Analyse the image and give proper context on it as you deem fit. A lways try to explain. who a person is, or what not."; // finalize overlay response structure // add margin perhaps? // change the prompt to something much more precise. // Prompt should be settable by user too.
 
 browserAPI.runtime.onMessage.addListener(async (message) => {
   console.log("request from content script");
@@ -20,7 +20,7 @@ browserAPI.runtime.onMessage.addListener(async (message) => {
       return Promise.resolve({ response });
     }
   } catch {
-    response = "dud"; // if the api response fails. i probably still want to resolve it as a success
+    response = "No response from Gemini"; // if the api response fails. i probably still want to resolve it as a success
     return Promise.resolve({ response });
   }
 });
