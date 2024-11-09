@@ -1,23 +1,22 @@
-# Deno WebExtension Boilerplate
+# Gemini-Helper Browser Extension
+This extension allows you to crop any part of a webpage and get additional context in form of a closable popup in the right bottom side of the webpage. This source code builds compatible file for both Firefox and chrome based browser
+[Image 1](!screenshots/twitter-gemini.png)
+[Image 2](!screenshots/quiz-gemini.png)
+# How to Build extension from source code
+1. You need to download [Deno](https://deno.land/) in order to build this app.
 
-Boilerplate to build a Deno + Preact-UI Browser Extension. Basically, `built.ts`
-uses esbuild to build js into the `dist` dir, and updates manifest stuff for v2
-(ff) and v3 (chrome).
+2.  | Commands                  | What they Do      |
+    | ------------------------- | ----------------- |
+    | `deno run -A build.ts`    | bundles extension |
+    | `deno run -A build.ts -w` | watch extension   |
 
-fwiw I built [Bext](https://github.com/bpevs/bext) so that you don't have to
-think about it. `build.ts` here is basically the Bext `main.ts` script. But if
-you want max control, I guess you can start here. This app is a mirror of the
-[preact_example](https://github.com/bpevs/bext/tree/main/examples/preact_app) +
-`build.ts`
+3. Raw files for extension after running bundle command is at dist/ folder. Extension can then be temporary loaded to the browser as a temporary add-on depending on your browser of choice. This should only be used for testing as data is not persistent after closing your browser.
 
-You need to download [Deno](https://deno.land/) in order to build this app.
+# Configuration
+In the option page(configuration menu) for Gemini. Two config values are settable.
+ - Gemini API key: This is compulsory to set. See [this section](<README#How to get Google-generative AI key>)
+ - Prompt: This is sent alongside the image generated from the area selected. A default internal prompt is used if not set
 
-| Commands                  | What they Do      |
-| ------------------------- | ----------------- |
-| `deno run -A build.ts`    | bundles extension |
-| `deno run -A build.ts -w` | watch extension   |
 
-If you have bundled using make commands, you should be able to load your
-unpacked extension using a browser.
-
-![Options + Popup Page](./screenshots/options.png)
+# How to get Google-generative AI key
+visit https://ai.google.dev/gemini-api/docs/api-key to generate your key
