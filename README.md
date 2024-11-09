@@ -1,7 +1,7 @@
 # Gemini-Helper Browser Extension
 This extension allows you to crop any part of a webpage and get additional context in form of a closable popup in the right bottom side of the webpage. This source code builds compatible file for both Firefox and chrome based browser
-[Image 1](!screenshots/twitter-gemini.png)
-[Image 2](!screenshots/quiz-gemini.png)
+![Image 1](screenshots/twitter-gemini.png)
+![Image 2](screenshots/quiz-gemini.png)
 # How to Build extension from source code
 1. You need to download [Deno](https://deno.land/) in order to build this app.
 
